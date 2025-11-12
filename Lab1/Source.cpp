@@ -25,14 +25,14 @@ std::vector<Shape> pictureToDraw = {
 };
 
 //малювання примітивів + обводки
-void drawCreature()
+void drawFigure(const std::vector<Shape>& figureDetails)
 {
     //товщина обводки
     glLineWidth(1.0f);
 
     //примітиви
     glColor3f(1.0f, 0.6f, 0.2f);
-    for (const Shape& shape : pictureToDraw)
+    for (const Shape& shape : figureDetails)
     {
         glBegin(shape.type);
         for (const Point& vertex : shape.vertices)
@@ -44,7 +44,7 @@ void drawCreature()
 
     //обводка
     glColor3f(0.0f, 0.0f, 0.0f);
-    for (const Shape& shape : pictureToDraw)
+    for (const Shape& shape : figureDetails)
     {
         glBegin(GL_LINE_LOOP);
         for (const Point& vertex : shape.vertices)
@@ -109,7 +109,7 @@ int main(void)
         glLoadIdentity();
 
         //будуємо фігури
-        drawCreature();
+        drawFigure(pictureToDraw);
 
         //зміна місцями "прихованого" кадру та "видимого" кадру
         glfwSwapBuffers(window);
