@@ -2,6 +2,10 @@
 #include <vector>
 #include <iostream>
 
+float creatureX = 0.0f;
+float creatureY = 0.0f;
+const float moveSpeed = 0.005f;
+
 struct Point
 {
     float x, y;
@@ -55,6 +59,44 @@ void drawFigure(const std::vector<Shape>& figureDetails)
     }
 }
 
+//обробка натискання клавіш
+void processInput(GLFWwindow* window)
+{
+    //рух вгору
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        float nextY = creatureY + moveSpeed;
+        creatureY = nextY;
+    }
+
+    //рух вниз
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        float nextY = creatureY - moveSpeed;
+        creatureY = nextY;
+    }
+
+    //рух вліво
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        float nextX = creatureX - moveSpeed;
+        creatureX = nextX;
+    }
+
+    //рух вправо
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        float nextX = creatureX + moveSpeed;
+        creatureX = nextX;
+    }
+
+    //закриття вікна
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
+}
+
 int main(void)
 {
     GLFWwindow* window;
@@ -105,8 +147,14 @@ int main(void)
         glClearColor(0.2f, 0.3f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        //обробка натискань
+        processInput(window);
+
         //повертає "курсор" малювання на (0;0)
         glLoadIdentity();
+
+        //застосування зсуву
+        glTranslatef(creatureX, creatureY, 0.0f);
 
         //будуємо фігури
         drawFigure(pictureToDraw);
