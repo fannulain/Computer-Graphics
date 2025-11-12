@@ -1,10 +1,18 @@
 #include <glfw3.h>
 #include <vector>
 #include <iostream>
+#include <algorithm>
+#include <limits>
 
 float creatureX = 0.0f;
 float creatureY = 0.0f;
 const float moveSpeed = 0.005f;
+
+//"границі" нашої фігури
+float figureMinX = std::numeric_limits<float>::max();
+float figureMaxX = std::numeric_limits<float>::lowest();
+float figureMinY = std::numeric_limits<float>::max();
+float figureMaxY = std::numeric_limits<float>::lowest();
 
 struct Point
 {
@@ -59,35 +67,72 @@ void drawFigure(const std::vector<Shape>& figureDetails)
     }
 }
 
+//обрахунок "границь" нашої фігури
+void calculateBoundingBox(const std::vector<Shape>& figureDetails)
+{
+    for (const Shape& shape : figureDetails)
+    {
+        for (const Point& vertex : shape.vertices)
+        {
+            figureMinX = std::min(figureMinX, vertex.x);
+            figureMaxX = std::max(figureMaxX, vertex.x);
+            figureMinY = std::min(figureMinY, vertex.y);
+            figureMaxY = std::max(figureMaxY, vertex.y);
+        }
+    }
+}
+
 //обробка натискання клавіш
 void processInput(GLFWwindow* window)
 {
+    //межі екрану
+    const float screenEdgeLeft = -1.0f;
+    const float screenEdgeRight = 1.0f;
+    const float screenEdgeBottom = -1.0f;
+    const float screenEdgeTop = 1.0f;
+
     //рух вгору
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
         float nextY = creatureY + moveSpeed;
-        creatureY = nextY;
+        //перевірка на перетин верхньої границі
+        if (nextY + figureMaxY < screenEdgeTop)
+        {
+            creatureY = nextY;
+        }
     }
 
     //рух вниз
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
         float nextY = creatureY - moveSpeed;
-        creatureY = nextY;
+        //перевірка на перетин нижньої границі
+        if (nextY + figureMinY > screenEdgeBottom)
+        {
+            creatureY = nextY;
+        }
     }
 
     //рух вліво
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         float nextX = creatureX - moveSpeed;
-        creatureX = nextX;
+        //перевірка на перетин лівої границі
+        if (nextX + figureMinX > screenEdgeLeft)
+        {
+            creatureX = nextX;
+        }
     }
 
     //рух вправо
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         float nextX = creatureX + moveSpeed;
-        creatureX = nextX;
+        //перевірка на перетин правої границі
+        if (nextX + figureMaxX < screenEdgeRight)
+        {
+            creatureX = nextX;
+        }
     }
 
     //закриття вікна
@@ -140,6 +185,9 @@ int main(void)
     //перестаємо налаштовувати камеру та повертаємось до "малювання"
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    //обрахунок границь фігури
+    calculateBoundingBox(pictureToDraw);
 
     while (!glfwWindowShouldClose(window))
     {
